@@ -3,6 +3,8 @@ const cors = require('cors');
 const db = require('./app/models');
 
 const boardRoutes = require('./app/routes/board.routes');
+const workspaceRoutes = require('./app/routes/workspace.routes');
+const authRoutes = require('./app/routes/auth.routes');
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -49,4 +51,6 @@ app.get("/", (req, res) => {
 
 // use board routes
 app.use('/api/boards', boardRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/workspaces', workspaceRoutes);
 
