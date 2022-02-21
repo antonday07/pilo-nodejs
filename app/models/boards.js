@@ -1,8 +1,10 @@
-module.exports = mongoose => {
+ module.exports = mongoose => {
     var schema = mongoose.Schema({
-        title: String,
-        description: String,
-        published: Boolean
+        name: {type: String, require: true},
+        background: {type: String},
+        description: {type: String, require: true},
+        // owner: {type: Schema.ObjectId, ref: "user", require: true},
+        workspace_id: {type: mongoose.Schema.ObjectId, ref: "workspace"}
     }, {
         timestamps: true
     });
