@@ -1,6 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./app/models');
+const dotenv = require('dotenv');
+
+// get config vars
+dotenv.config();
 
 const boardRoutes = require('./app/routes/board.routes');
 const workspaceRoutes = require('./app/routes/workspace.routes');
