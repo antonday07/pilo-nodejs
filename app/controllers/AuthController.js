@@ -2,26 +2,46 @@ const db = require("../models");
 const apiResponse = require("../helpers/apiResponse");
 const bcrypt = require('bcrypt');
 const User = db.user;
+const jwt = require('jsonwebtoken');
 
 // Create and Save a new Tutorial
+
+const generateToken = (payload) => {
+    return  jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_TIMEOUT_DURATION })
+}
+
 exports.login = (req, res) => {
+    const {email, password} = req.body;
+
     // Validate request
-    if (!req.body.email) {
+    if (!email) {
         res.status(400).send({ message: "Email can not be empty!" });
         return;
       }
 
-      if (!req.body.password) {
+      if (!password) {
         res.status(400).send({ message: "Password can not be empty!" });
         return;
       }
-
-        User.findOne({email: req.body.email }, (err, user) => {
+        User.findOne({email: email }, (err, user) => {
             if(user == null) {
                 return apiResponse.notFoundResponse(res, "User not found !.");
             }
-            if(bcrypt.compareSync(req.body.password, user.password)) {
-                return apiResponse.successResponseWithData(res, "Login successfully !", user)
+            if(bcrypt.compareSync(password, user.password)) {
+                let userData = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email
+                };
+                const token = generateToken(userData);
+                let currentUser = {
+                  ...userData,
+                  createdAt: user.createdAt,
+                  updatedAt: user.updatedAt,
+                  token
+                }
+               
+                return apiResponse.successResponseWithData(res, "Login successfully !", currentUser)
             } else {
                 return apiResponse.ErrorResponse(res, "Email or password is incorrect !");
             }
@@ -58,7 +78,19 @@ exports.signUp = (req, res) => {
       user
         .save()
         .then(data => {
-          return apiResponse.successResponseWithData(res,"User created successfully !.", data);
+          let userData = {
+            id: data.id,
+            username: data.username,
+            email: data.email
+          };
+          const token = generateToken(userData);
+          let currentUser = {
+            ...userData,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            token
+          }
+          return apiResponse.successResponseWithData(res,"User created successfully !.", currentUser);
         })
         .catch(err => {
           res.status(500).send({
